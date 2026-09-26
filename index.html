@@ -3,23 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deadshot 3D FPS - Updated Map & Jump Physics</title>
+    <title>Deadshot 3D FPS - Pro Ultimate Update</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <div id="damage-overlay"></div>
+
     <div id="hud">
         <div id="crosshair"></div>
+        <div id="sniper-scope"></div>
+
         <div id="score-board">KILLS: <span id="kills">0</span></div>
+        <div id="weapon-display">WEAPON: <span id="weapon-name">RIFLE [1]</span></div>
         <div id="kill-feed"></div>
+        
         <div id="health-bar-container"><div id="health-bar"></div></div>
-        <div id="ammo-display"><span id="ammo">30</span><span> / 30</span></div>
+        <div id="ammo-display"><span id="ammo">30</span><span id="max-ammo"> / 30</span></div>
+
+        <!-- Minimap Radar -->
+        <canvas id="minimap" width="140" height="140"></canvas>
     </div>
 
     <div id="overlay">
-        <h1 id="title">DEADSHOT.IO CLONE</h1>
-        <p>WASD = Move | Space = Jump | Left Click = Shoot | Right Click = Scope | R = Reload</p>
-        <div class="btn">Click to Deploy</div>
+        <h1 id="title">DEADSHOT.IO ULTIMATE</h1>
+        <p>WASD = Move | Space = Jump | C / Ctrl = Slide<br>
+           1, 2, 3 = Switch Weapons (Rifle, Sniper, Shotgun)<br>
+           Left Click = Shoot | Right Click = Scope | R = Reload</p>
+        <div class="btn">Click to Play</div>
     </div>
 
     <!-- Three.js Library -->
