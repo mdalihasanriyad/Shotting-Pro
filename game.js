@@ -18,8 +18,8 @@ function playSound(freq, duration, type = 'sawtooth') {
 
 // --- Engine Setup ---
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0f172a);
-scene.fog = new THREE.FogExp2(0x0f172a, 0.012);
+scene.background = new THREE.Color(0x0a0f1d);
+scene.fog = new THREE.FogExp2(0x0a0f1d, 0.01);
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -31,41 +31,49 @@ document.body.appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
 scene.add(ambientLight);
 
-const sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
-sunLight.position.set(30, 50, 20);
+const sunLight = new THREE.DirectionalLight(0xffffff, 0.9);
+sunLight.position.set(40, 60, 20);
 sunLight.castShadow = true;
 scene.add(sunLight);
 
-// --- Arena Map ---
-const floorGeo = new THREE.PlaneGeometry(120, 120);
+// --- Arena Map Design (Upgraded) ---
+const floorGeo = new THREE.PlaneGeometry(160, 160);
 const floorMat = new THREE.MeshLambertMaterial({ color: 0x1e293b });
 const floor = new THREE.Mesh(floorGeo, floorMat);
 floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-const grid = new THREE.GridHelper(120, 30, 0x00ffcc, 0x334155);
+const grid = new THREE.GridHelper(160, 40, 0x00ffcc, 0x334155);
 grid.position.y = 0.01;
 scene.add(grid);
 
-// Cover Obstacles
-const boxes = [];
-function createBox(x, z, w, h, d) {
+// Building / Obstacle Spawner
+const obstacles = [];
+
+function createStructure(x, y, z, w, h, d, color = 0x334155) {
     const geo = new THREE.BoxGeometry(w, h, d);
-    const mat = new THREE.MeshLambertMaterial({ color: 0x334155 });
-    const box = new THREE.Mesh(geo, mat);
-    box.position.set(x, h / 2, z);
-    box.castShadow = true;
-    box.receiveShadow = true;
-    scene.add(box);
-    boxes.push(box);
+    const mat = new THREE.MeshLambertMaterial({ color: color });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y + h / 2, z);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    scene.add(mesh);
+    obstacles.push(mesh);
 }
 
-createBox(0, -20, 10, 4, 2);
-createBox(-15, 0, 4, 5, 12);
-createBox(15, 10, 8, 4, 8);
-createBox(-20, -20, 6, 6, 6);
-createBox(20, -25, 6, 6, 6);
+// Map Layout (Buildings, Walls, Ramps)
+createStructure(0, 0, -30, 20, 12, 10, 0x1e293b); // Main Building
+createStructure(0, 12, -30, 16, 1, 8, 0x0f172a);  // Roof Platform
+createStructure(-35, 0, -10, 10, 8, 20, 0x334155); // Left Building
+createStructure(35, 0, -10, 10, 8, 20, 0x334155);  // Right Building
+
+// Cover Walls & Low Blocks
+createStructure(-15, 0, 10, 12, 3, 2, 0x475569);
+createStructure(15, 0, 10, 12, 3, 2, 0x475569);
+createStructure(0, 0, 25, 16, 4, 3, 0x475569);
+createStructure(-25, 0, -35, 8, 5, 8, 0x475569);
+createStructure(25, 0, -35, 8, 5, 8, 0x475569);
 
 // --- Player Weapon ---
 const gunGroup = new THREE.Group();
@@ -84,21 +92,21 @@ gunGroup.position.set(0.25, -0.2, -0.4);
 camera.add(gunGroup);
 scene.add(camera);
 
-// --- Player State & Physics ---
-camera.position.set(0, 1.6, 20);
+// --- Player Controls & Jump Physics ---
+camera.position.set(0, 1.6, 40);
 let health = 100, kills = 0, ammo = 30, maxAmmo = 30;
 let isReloading = false, isAiming = false;
 let isLocked = false;
 
-// Movement & Jumping Variables
+// Fixed Jump Physics
 const moveState = { forward: false, backward: false, left: false, right: false };
 let velocityY = 0;
-let canJump = true;
+let isGrounded = true;
 const gravity = 0.015;
-const jumpStrength = 0.35;
+const jumpForce = 0.38;
 const playerHeight = 1.6;
 
-// --- Pointer Lock Controls ---
+// Pointer Lock Controls
 const overlay = document.getElementById('overlay');
 overlay.addEventListener('click', () => document.body.requestPointerLock());
 
@@ -119,16 +127,18 @@ document.addEventListener('mousemove', (e) => {
     camera.rotation.x = pitch;
 });
 
-// Keyboard Inputs
+// Keyboard Handling
 window.addEventListener('keydown', (e) => {
     if (e.code === 'KeyW') moveState.forward = true;
     if (e.code === 'KeyS') moveState.backward = true;
     if (e.code === 'KeyA') moveState.left = true;
     if (e.code === 'KeyD') moveState.right = true;
-    if (e.code === 'Space' && canJump) {
-        velocityY = jumpStrength;
-        canJump = false;
-        playSound(200, 0.1, 'sine');
+    
+    // Jump Execution
+    if (e.code === 'Space' && isGrounded) {
+        velocityY = jumpForce;
+        isGrounded = false;
+        playSound(220, 0.1, 'sine');
     }
     if (e.code === 'KeyR' && !isReloading && ammo < maxAmmo) reload();
 });
@@ -140,7 +150,7 @@ window.addEventListener('keyup', (e) => {
     if (e.code === 'KeyD') moveState.right = false;
 });
 
-// Aim Down Sight (ADS)
+// Scope / ADS
 window.addEventListener('mousedown', (e) => {
     if (e.button === 2 && isLocked) {
         isAiming = true;
@@ -159,52 +169,34 @@ window.addEventListener('mouseup', (e) => {
 });
 window.addEventListener('contextmenu', e => e.preventDefault());
 
-// --- Humanoid Enemy Generator ---
+// --- Enemy Bots ---
 const bots = [];
 
-function createHumanoidBot() {
+function createBot() {
     const botGroup = new THREE.Group();
     const mat = new THREE.MeshLambertMaterial({ color: 0xff4757 });
 
-    // Head
-    const headGeo = new THREE.BoxGeometry(0.4, 0.4, 0.4);
-    const head = new THREE.Mesh(headGeo, mat);
-    head.position.y = 1.6;
-    head.castShadow = true;
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), mat); head.position.y = 1.6;
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.8, 0.3), mat); torso.position.y = 1.0;
+    
+    const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), mat); leftArm.position.set(-0.45, 1.0, 0);
+    const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), mat); rightArm.position.set(0.45, 1.0, 0);
 
-    // Torso
-    const torsoGeo = new THREE.BoxGeometry(0.6, 0.8, 0.3);
-    const torso = new THREE.Mesh(torsoGeo, mat);
-    torso.position.y = 1.0;
-    torso.castShadow = true;
+    const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.7, 0.22), mat); leftLeg.position.set(-0.18, 0.35, 0);
+    const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.7, 0.22), mat); rightLeg.position.set(0.18, 0.35, 0);
 
-    // Arms
-    const armGeo = new THREE.BoxGeometry(0.2, 0.7, 0.2);
-    const leftArm = new THREE.Mesh(armGeo, mat);
-    leftArm.position.set(-0.45, 1.0, 0);
-    const rightArm = new THREE.Mesh(armGeo, mat);
-    rightArm.position.set(0.45, 1.0, 0);
-
-    // Legs
-    const legGeo = new THREE.BoxGeometry(0.22, 0.7, 0.22);
-    const leftLeg = new THREE.Mesh(legGeo, mat);
-    leftLeg.position.set(-0.18, 0.35, 0);
-    const rightLeg = new THREE.Mesh(legGeo, mat);
-    rightLeg.position.set(0.18, 0.35, 0);
-
-    // Gun in Right Hand
-    const botGunGeo = new THREE.BoxGeometry(0.1, 0.1, 0.5);
-    const botGunMat = new THREE.MeshLambertMaterial({ color: 0x111111 });
-    const botGun = new THREE.Mesh(botGunGeo, botGunMat);
+    const botGun = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.5), new THREE.MeshLambertMaterial({ color: 0x111111 }));
     botGun.position.set(0.45, 0.8, -0.2);
 
     botGroup.add(head, torso, leftArm, rightArm, leftLeg, rightLeg, botGun);
-    botGroup.position.set((Math.random() - 0.5) * 80, 0, (Math.random() - 0.5) * 80);
+    
+    // Spawn at random positions
+    botGroup.position.set((Math.random() - 0.5) * 120, 0, (Math.random() - 0.5) * 120);
     
     botGroup.userData = { 
         health: 100, 
-        lastShoot: Date.now(), 
-        leftLeg: leftLeg, 
+        lastShoot: Date.now(),
+        leftLeg: leftLeg,
         rightLeg: rightLeg,
         animTime: Math.random() * 10
     };
@@ -213,9 +205,9 @@ function createHumanoidBot() {
     bots.push(botGroup);
 }
 
-for (let i = 0; i < 6; i++) createHumanoidBot();
+for (let i = 0; i < 8; i++) createBot();
 
-// --- Bullet Visual Effect ---
+// --- Shooting & Visuals ---
 function createBulletTracer(start, end, color = 0x00ffcc) {
     const geo = new THREE.BufferGeometry().setFromPoints([start, end]);
     const mat = new THREE.LineBasicMaterial({ color: color });
@@ -224,26 +216,20 @@ function createBulletTracer(start, end, color = 0x00ffcc) {
     setTimeout(() => scene.remove(line), 50);
 }
 
-// --- Player Shooting ---
 const raycaster = new THREE.Raycaster();
 
 window.addEventListener('mousedown', (e) => {
     if (!isLocked || e.button !== 0 || isReloading) return;
 
-    if (ammo <= 0) {
-        reload();
-        return;
-    }
+    if (ammo <= 0) { reload(); return; }
 
     ammo--;
     document.getElementById('ammo').innerText = ammo;
     playSound(400, 0.1);
 
-    // Recoil
     gunGroup.position.z += 0.08;
     setTimeout(() => gunGroup.position.z -= 0.08, 50);
 
-    // Shooting Raycast
     raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
     const botMeshes = [];
     bots.forEach(b => b.children.forEach(c => botMeshes.push(c)));
@@ -265,12 +251,12 @@ window.addEventListener('mousedown', (e) => {
             bots.splice(bots.indexOf(botGroup), 1);
             kills++;
             document.getElementById('kills').innerText = kills;
-            addKillFeed("Eliminated Enemy Humanoid");
-            setTimeout(createHumanoidBot, 2000);
+            addKillFeed("Eliminated Enemy Bot");
+            setTimeout(createBot, 2000);
         }
     } else {
         const farPoint = new THREE.Vector3();
-        raycaster.ray.at(50, farPoint);
+        raycaster.ray.at(60, farPoint);
         createBulletTracer(gunWorldPos, farPoint, 0x00ffcc);
     }
 });
@@ -298,45 +284,42 @@ function animate() {
     requestAnimationFrame(animate);
 
     if (isLocked) {
-        // Horizontal Movement
-        const moveSpeed = 0.12;
+        // Player Movement
+        const moveSpeed = 0.14;
         if (moveState.forward) camera.translateZ(-moveSpeed);
         if (moveState.backward) camera.translateZ(moveSpeed);
         if (moveState.left) camera.translateX(-moveSpeed);
         if (moveState.right) camera.translateX(moveSpeed);
 
-        // Jump & Gravity Physics
+        // Gravity & Jump Physics Calculations
         camera.position.y += velocityY;
         velocityY -= gravity;
 
         if (camera.position.y <= playerHeight) {
             camera.position.y = playerHeight;
             velocityY = 0;
-            canJump = true;
+            isGrounded = true;
         }
 
-        // Enemy AI & Shooting
+        // Bot Behavior
         bots.forEach(bot => {
             bot.lookAt(camera.position.x, 0, camera.position.z);
             bot.translateZ(0.04);
 
-            // Walking Animation
             bot.userData.animTime += 0.1;
             bot.userData.leftLeg.rotation.x = Math.sin(bot.userData.animTime) * 0.5;
             bot.userData.rightLeg.rotation.x = -Math.sin(bot.userData.animTime) * 0.5;
 
-            // Enemy Attack Logic
             const dist = bot.position.distanceTo(camera.position);
-            if (dist < 20 && Date.now() - bot.userData.lastShoot > 1800) {
+            if (dist < 22 && Date.now() - bot.userData.lastShoot > 1800) {
                 bot.userData.lastShoot = Date.now();
                 
-                // Bot Shoot Visual & Sound
                 playSound(150, 0.1, 'square');
                 const botGunPos = new THREE.Vector3();
                 bot.children[6].getWorldPosition(botGunPos);
                 createBulletTracer(botGunPos, camera.position, 0xff4757);
 
-                health -= 12;
+                health -= 10;
                 document.getElementById('health-bar').style.width = Math.max(0, health) + '%';
 
                 if (health <= 0) {
@@ -352,7 +335,7 @@ function animate() {
 
 animate();
 
-// Window Resize
+// Resize
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
