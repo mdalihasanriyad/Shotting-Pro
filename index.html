@@ -1,9 +1,10 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deadshot 3D FPS - Pro Ultimate Update</title>
+    <title>Deadshot 3D FPS - Cyber Arena Survival</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,11 +15,17 @@
         <div id="crosshair"></div>
         <div id="sniper-scope"></div>
 
-        <div id="score-board">KILLS: <span id="kills">0</span></div>
+        <div id="score-board">
+            <div>WAVE: <span id="wave-num">1</span></div>
+            <div>KILLS: <span id="kills">0</span></div>
+        </div>
         <div id="weapon-display">WEAPON: <span id="weapon-name">RIFLE [1]</span></div>
         <div id="kill-feed"></div>
         
-        <div id="health-bar-container"><div id="health-bar"></div></div>
+        <div id="health-bar-container">
+            <div id="health-bar"></div>
+            <span id="health-text">100 HP</span>
+        </div>
         <div id="ammo-display"><span id="ammo">30</span><span id="max-ammo"> / 30</span></div>
 
         <!-- Minimap Radar -->
@@ -26,8 +33,8 @@
     </div>
 
     <div id="overlay">
-        <h1 id="title">DEADSHOT.IO ULTIMATE</h1>
-        <p>WASD = Move | Space = Jump | C / Ctrl = Slide<br>
+        <h1 id="title">DEADSHOT: CYBER ARENA SURVIVAL</h1>
+        <p>WASD = Move | Shift = Sprint | C / Ctrl = Slide | Space = Jump<br>
            1, 2, 3 = Switch Weapons (Rifle, Sniper, Shotgun)<br>
            Left Click = Shoot | Right Click = Scope | R = Reload</p>
         <div class="btn">Click to Play</div>
