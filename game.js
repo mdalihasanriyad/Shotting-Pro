@@ -1,5 +1,3 @@
-// game.js
-
 // --- Sound Engine (Web Audio API) ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -137,13 +135,25 @@ spawnMedkit(0, 0);
 
 // --- Weapons Data System ---
 const WEAPONS = {
-    1: { name: "RIFLE", ammo: 30, maxAmmo: 30, damage: 32, fireRate: 110, spread: 0.02, pellets: 1 },
-    2: { name: "SNIPER", ammo: 5, maxAmmo: 5, damage: 110, fireRate: 750, spread: 0.001, pellets: 1 },
-    3: { name: "SHOTGUN", ammo: 8, maxAmmo: 8, damage: 18, fireRate: 550, spread: 0.08, pellets: 8 }
+    1: { name: "ASSAULT RIFLE", ammo: 30, maxAmmo: 30, damage: 32, fireRate: 110, spread: 0.02, pellets: 1 },
+    2: { name: "SNIPER RIFLE", ammo: 5, maxAmmo: 5, damage: 110, fireRate: 750, spread: 0.001, pellets: 1 },
+    3: { name: "SHOTGUN", ammo: 8, maxAmmo: 8, damage: 18, fireRate: 550, spread: 0.08, pellets: 8 },
+    4: { name: "DUAL PISTOLS", ammo: 24, maxAmmo: 24, damage: 22, fireRate: 80, spread: 0.035, pellets: 1 }
 };
 
+let selectedWeaponKey = 1; // Default from menu selection
 let currentWeaponKey = 1;
 let currentWeapon = WEAPONS[currentWeaponKey];
+
+// Pre-game Gun Selection Setup
+const weaponCards = document.querySelectorAll('.weapon-card');
+weaponCards.forEach(card => {
+    card.addEventListener('click', () => {
+        weaponCards.forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        selectedWeaponKey = parseInt(card.dataset.weapon);
+    });
+});
 
 // --- Player Weapon Model ---
 const gunGroup = new THREE.Group();
@@ -177,9 +187,14 @@ const gravity = 0.015;
 const jumpForce = 0.36;
 let playerHeight = 1.6;
 
-// Pointer Lock
+// Pointer Lock & Start Game
 const overlay = document.getElementById('overlay');
-overlay.addEventListener('click', () => document.body.requestPointerLock());
+const startBtn = document.getElementById('start-btn');
+
+startBtn.addEventListener('click', () => {
+    switchWeapon(selectedWeaponKey);
+    document.body.requestPointerLock();
+});
 
 document.addEventListener('pointerlockchange', () => {
     isLocked = (document.pointerLockElement === document.body);
@@ -207,7 +222,7 @@ window.addEventListener('keydown', (e) => {
     if (e.code === 'ShiftLeft') moveState.sprint = true;
 
     // Weapon Switch
-    if (['Digit1', 'Digit2', 'Digit3'].includes(e.code)) {
+    if (['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code)) {
         switchWeapon(parseInt(e.code.replace('Digit', '')));
     }
 
@@ -239,7 +254,7 @@ window.addEventListener('keyup', (e) => {
 });
 
 function switchWeapon(key) {
-    if (isReloading || currentWeaponKey === key) return;
+    if (isReloading || (currentWeaponKey === key && isLocked)) return;
     currentWeaponKey = key;
     currentWeapon = WEAPONS[key];
     document.getElementById('weapon-name').innerText = `${currentWeapon.name} [${key}]`;
@@ -315,7 +330,7 @@ function createRealisticBot(x, z) {
     const canvas = document.createElement('canvas');
     canvas.width = 64; canvas.height = 12;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#ff4757'; ctx.fillRect(0, 0, 64, 12);
+    ctx.fillStyle = '#00ffcc'; ctx.fillRect(0, 0, 64, 12);
     const texture = new THREE.CanvasTexture(canvas);
     const spriteMat = new THREE.SpriteMaterial({ map: texture });
     const healthSprite = new THREE.Sprite(spriteMat);
