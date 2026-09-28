@@ -1,69 +1,128 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deadshot 3D FPS - Cyber Arena Survival</title>
-    <link rel="stylesheet" href="style.css">
+
+```
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- SEO -->
+<title>Shotting Pro - Free Online FPS Shooting Game | Cyber Arena</title>
+
+<meta name="description" content="Play Shotting Pro, a free online FPS shooting game in a futuristic Cyber Arena. Choose your weapon, fight enemy waves, survive and get the highest score.">
+
+<meta name="keywords" content="Shotting Pro, FPS shooting game, online shooting game, free FPS game, browser shooting game, cyber arena, survival shooting game">
+
+<meta name="author" content="Shotting Pro">
+
+<meta name="robots" content="index, follow">
+
+<link rel="canonical" href="https://shotting-pro.vercel.app/">
+
+<!-- Open Graph SEO -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://shotting-pro.vercel.app/">
+<meta property="og:title" content="Shotting Pro - Free Online FPS Shooting Game">
+<meta property="og:description" content="Enter the Cyber Arena and survive enemy waves in Shotting Pro, a free browser-based FPS shooting game.">
+<meta property="og:site_name" content="Shotting Pro">
+
+<!-- Twitter SEO -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Shotting Pro - Free Online FPS Shooting Game">
+<meta name="twitter:description" content="Play Shotting Pro online. Choose your weapon, fight enemy waves and survive the Cyber Arena.">
+
+<!-- Theme -->
+<meta name="theme-color" content="#000000">
+
+<link rel="stylesheet" href="style.css">
+```
+
 </head>
+
 <body>
 
-    <div id="damage-overlay"></div>
+```
+<div id="damage-overlay"></div>
 
-    <div id="hud">
-        <div id="crosshair"></div>
-        <div id="sniper-scope"></div>
+<div id="hud">
+    <div id="crosshair"></div>
+    <div id="sniper-scope"></div>
 
-        <div id="score-board">
-            <div>WAVE: <span id="wave-num">1</span></div>
-            <div>KILLS: <span id="kills">0</span></div>
-        </div>
-        <div id="weapon-display">WEAPON: <span id="weapon-name">RIFLE [1]</span></div>
-        <div id="kill-feed"></div>
-        
-        <div id="health-bar-container">
-            <div id="health-bar"></div>
-            <span id="health-text">100 HP</span>
-        </div>
-        <div id="ammo-display"><span id="ammo">30</span><span id="max-ammo"> / 30</span></div>
-
-        <!-- Minimap Radar -->
-        <canvas id="minimap" width="140" height="140"></canvas>
+    <div id="score-board">
+        <div>WAVE: <span id="wave-num">1</span></div>
+        <div>KILLS: <span id="kills">0</span></div>
     </div>
 
-    <!-- Start & Loadout Overlay -->
-    <div id="overlay">
-        <h1 id="title">DEADSHOT: CYBER ARENA SURVIVAL</h1>
-        <p>Choose your starting primary weapon before entering the battlefield:</p>
-        
-        <div id="loadout-selection">
-            <div class="weapon-card active" data-weapon="1">
-                <div class="gun-name">ASSAULT RIFLE</div>
-                <div class="gun-stats">Damage: Medium | Fire Rate: Fast</div>
-            </div>
-            <div class="weapon-card" data-weapon="2">
-                <div class="gun-name">SNIPER RIFLE</div>
-                <div class="gun-stats">Damage: High | Fire Rate: Slow</div>
-            </div>
-            <div class="weapon-card" data-weapon="3">
-                <div class="gun-name">SHOTGUN</div>
-                <div class="gun-stats">Damage: High Spread | Fire Rate: Medium</div>
-            </div>
-            <div class="weapon-card" data-weapon="4">
-                <div class="gun-name">DUAL PISTOLS</div>
-                <div class="gun-stats">Damage: Light | Fire Rate: Very Fast</div>
-            </div>
-        </div>
-
-        <p class="controls-hint">
-           WASD = Move | Shift = Sprint | C / Ctrl = Slide | Space = Jump<br>
-           1, 2, 3, 4 = Switch Guns | Left Click = Shoot | Right Click = Scope | R = Reload
-        </p>
-        <div class="btn" id="start-btn">JOIN ARENA</div>
+    <div id="weapon-display">
+        WEAPON: <span id="weapon-name">RIFLE [1]</span>
     </div>
 
-    <!-- Three.js Library -->
-    <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
-    <script src="game.js"></script>
+    <div id="kill-feed"></div>
+    
+    <div id="health-bar-container">
+        <div id="health-bar"></div>
+        <span id="health-text">100 HP</span>
+    </div>
+
+    <div id="ammo-display">
+        <span id="ammo">30</span>
+        <span id="max-ammo"> / 30</span>
+    </div>
+
+    <!-- Minimap Radar -->
+    <canvas id="minimap" width="140" height="140"></canvas>
+</div>
+
+<!-- Start & Loadout Overlay -->
+<div id="overlay">
+
+    <h1 id="title">Shooring Pro: CYBER ARENA SURVIVAL</h1>
+
+    <p>
+        Choose your starting primary weapon before entering the battlefield:
+    </p>
+    
+    <div id="loadout-selection">
+
+        <div class="weapon-card active" data-weapon="1">
+            <div class="gun-name">ASSAULT RIFLE</div>
+            <div class="gun-stats">Damage: Medium | Fire Rate: Fast</div>
+        </div>
+
+        <div class="weapon-card" data-weapon="2">
+            <div class="gun-name">SNIPER RIFLE</div>
+            <div class="gun-stats">Damage: High | Fire Rate: Slow</div>
+        </div>
+
+        <div class="weapon-card" data-weapon="3">
+            <div class="gun-name">SHOTGUN</div>
+            <div class="gun-stats">Damage: High Spread | Fire Rate: Medium</div>
+        </div>
+
+        <div class="weapon-card" data-weapon="4">
+            <div class="gun-name">DUAL PISTOLS</div>
+            <div class="gun-stats">Damage: Light | Fire Rate: Very Fast</div>
+        </div>
+
+    </div>
+
+    <p class="controls-hint">
+       WASD = Move | Shift = Sprint | C / Ctrl = Slide | Space = Jump<br>
+       1, 2, 3, 4 = Switch Guns | Left Click = Shoot | Right Click = Scope | R = Reload
+    </p>
+
+    <div class="btn" id="start-btn">
+        JOIN ARENA
+    </div>
+
+</div>
+
+<!-- Three.js Library -->
+<script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+
+<script src="game.js"></script>
+```
+
 </body>
 </html>
